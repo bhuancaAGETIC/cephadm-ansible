@@ -1,0 +1,89 @@
+---
+- name: Install and configure Ceph Cluster
+  hosts: ceph
+  become: yes
+  roles:
+    - chrony
+    - docker
+    - ceph
+
+
+- name: Bootstrap Ceph cluster
+  hosts: ceph_main  # o el host adecuado para esta tarea
+  tasks:
+    - name: Run cephadm bootstrap command
+      become: yes
+      command: "sudo ./cephadm bootstrap --mon-ip {{ ceph_mon_ip }} --initial-dashboard-user {{ ceph_initial_dashboard_user }} --initial-dashboard-password {{ ceph_initial_dashboard_password }} --dashboard-password-noupdate --cluster-network={{ ceph_cluster_network }} --allow-fqdn-hostname"
+
+- name: Copy SSH key to ceph nodes
+  hosts: ceph_main
+  become: yes
+  tasks:
+    - name: Read the content of ceph.pub
+      slurp:
+        src: /etc/ceph/ceph.pub
+      register: ceph_pub_content
+
+- name: Add SSH key to ceph nodes
+  hosts: ceph
+  become: yes
+  tasks:
+    - name: Ensure .ssh directory exists
+      file:
+        path: /root/.ssh
+        state: directory
+        mode: '0700'
+        owner: root
+        group: root
+
+    - name: Add ceph.pub key to authorized_keys
+      lineinfile:
+        path: /root/.ssh/authorized_keys
+        line: "{{ hostvars[groups['ceph_main'][0]]['ceph_pub_content']['content'] | b64decode }}"
+        create: yes
+        owner: root
+        group: root
+        mode: '0600'
+
+
+- name: Bootstrap Ceph cluster
+  hosts: ceph_main
+  become: yes
+  tasks:
+
+- name: Add hosts
+  hosts: ceph_main
+  tasks:
+    - name: Add hosts
+      shell: |
+        {% for host in groups['ceph-add'] %}
+        sudo ceph orch host add {{ host }} {{ hostvars[host].ansible_host }}
+        {% endfor %}
+
+    
+    - name: Apply MON placement
+      shell: |
+        sudo ceph orch apply mon --placement="{{ groups['mon'] | join(',') }}"
+
+    - name: Apply MGR placement
+      shell: |
+        sudo ceph orch apply mgr --placement="{{ groups['mgr'] | join(',') }}"
+
+    - name: Label OSD nodes
+      shell: |
+        sudo ceph orch host label add {{ item }} osd-node
+      with_items: "{{ groups['osd'] }}"
+
+    - name: Label MON nodes
+      shell: |
+        sudo ceph orch host label add {{ item }} mon
+      with_items: "{{ groups['mon'] }}"
+
+    - name: Label MGR nodes
+      shell: |
+        sudo ceph orch host label add {{ item }} mgr
+      with_items: "{{ groups['mgr'] }}"
+
+    - name: Apply OSD configuration
+      shell: |
+        sudo ceph orch apply osd --all-available-devices

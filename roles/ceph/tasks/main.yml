@@ -1,0 +1,10 @@
+---
+- name: Download cephadm
+  shell: "sudo curl --silent --remote-name --location https://github.com/ceph/ceph/raw/quincy/src/cephadm/cephadm"
+
+- name: Make cephadm executable
+  shell: "sudo chmod +x cephadm"
+
+- name: Install ceph-common
+  shell: "sudo ./cephadm install ceph-common"
+

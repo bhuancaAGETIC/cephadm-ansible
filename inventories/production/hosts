@@ -1,0 +1,29 @@
+[ceph_main]
+ceph0 ansible_host=192.168.24.50
+
+
+[ceph]
+ceph0 ansible_host=192.168.24.50
+ceph1 ansible_host=192.168.24.51
+ceph2 ansible_host=192.168.24.52
+
+[ceph-add]
+ceph1 ansible_host=192.168.24.51
+ceph2 ansible_host=192.168.24.52
+
+[mon]
+ceph0 ansible_host=192.168.24.50
+ceph1 ansible_host=192.168.24.51
+ceph2 ansible_host=192.168.24.52
+
+[osd]
+ceph0 ansible_host=192.168.24.50
+ceph1 ansible_host=192.168.24.51
+ceph2 ansible_host=192.168.24.52
+
+[mgr]
+ceph0 ansible_host=192.168.24.50
+ceph1 ansible_host=192.168.24.51
+ceph2 ansible_host=192.168.24.52
+
+

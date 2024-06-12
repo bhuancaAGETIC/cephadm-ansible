@@ -1,0 +1,26 @@
+---
+- name: Install chrony
+  apt:
+    name: chrony
+    state: present
+    update_cache: yes
+
+- name: Comment out existing pool entries in chrony.conf
+  lineinfile:
+    path: /etc/chrony/chrony.conf
+    regexp: '^pool'
+    line: '#&'
+    backrefs: yes
+
+- name: Add custom pool and allow entries to chrony.conf
+  blockinfile:
+    path: /etc/chrony/chrony.conf
+    block: |
+      pool {{ chrony_pool }}
+      allow {{ chrony_allow }}
+
+- name: Enable and restart chrony service
+  systemd:
+    name: chrony
+    enabled: yes
+    state: restarted
