@@ -56,7 +56,7 @@
   tasks:
     - name: Add hosts
       shell: |
-        {% for host in groups['ceph-add'] %}
+        {% for host in groups['ceph'] %}
         sudo ceph orch host add {{ host }} {{ hostvars[host].ansible_host }}
         {% endfor %}
 
