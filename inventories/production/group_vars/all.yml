@@ -1,9 +1,9 @@
-chrony_pool: "192.168.24.41 iburst"
+chrony_pool: "pool 0.in.pool.ntp.org iburst"
 chrony_allow: "192.168.24.0/26"
 docker_repo_url: "https://download.docker.com/linux/debian"
 docker_gpg_url: "https://download.docker.com/linux/debian/gpg"
 
-ceph_mon_ip: "192.168.24.41"
+ceph_mon_ip: "192.168.24.42"
 ceph_initial_dashboard_user: "admin"
 ceph_initial_dashboard_password: "ceph"
 ceph_cluster_network: "192.168.24.0/26"
