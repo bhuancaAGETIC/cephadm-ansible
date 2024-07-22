@@ -1,4 +1,4 @@
-chrony_pool: "pool 0.in.pool.ntp.org iburst"
+chrony_pool: "0.in.pool.ntp.org iburst"
 chrony_allow: "192.168.24.0/26"
 docker_repo_url: "https://download.docker.com/linux/debian"
 docker_gpg_url: "https://download.docker.com/linux/debian/gpg"
