@@ -7,19 +7,19 @@
     - docker
     - ceph
 
-# - name: Bootstrap Ceph cluster
-#   hosts: ceph_main  # Utilizando el host adecuado para esta tarea
-#   tasks:
-#     - name: Ejecutar el comando cephadm bootstrap
-#       become: yes
-#       command: >
-#         sudo ./cephadm bootstrap 
-#         --mon-ip {{ hostvars[groups['ceph_main'][0]].ansible_host }} 
-#         --initial-dashboard-user {{ ceph_initial_dashboard_user }} 
-#         --initial-dashboard-password {{ ceph_initial_dashboard_password }} 
-#         --dashboard-password-noupdate 
-#         --cluster-network={{ ceph_cluster_network }} 
-#         --allow-fqdn-hostname
+ - name: Bootstrap Ceph cluster
+   hosts: ceph_main  # Utilizando el host adecuado para esta tarea
+   tasks:
+     - name: Ejecutar el comando cephadm bootstrap
+       become: yes
+       command: >
+         sudo ./cephadm bootstrap 
+         --mon-ip {{ hostvars[groups['ceph_main'][0]].ansible_host }} 
+         --initial-dashboard-user {{ ceph_initial_dashboard_user }} 
+         --initial-dashboard-password {{ ceph_initial_dashboard_password }} 
+         --dashboard-password-noupdate 
+         --cluster-network={{ ceph_cluster_network }} 
+         --allow-fqdn-hostname
 
 - name: Copiar clave SSH a nodos ceph
   hosts: ceph_main
