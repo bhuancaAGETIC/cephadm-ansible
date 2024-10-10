@@ -1,0 +1,21 @@
+# para chrony
+chrony_pool: "0.in.pool.ntp.org iburst"
+chrony_allow: "192.168.24.0/26"
+
+# respositorio para docker
+docker_repo_url: "https://download.docker.com/linux/debian"
+docker_gpg_url: "https://download.docker.com/linux/debian/gpg"
+
+# variables instalacion 
+
+# Versión/release de Ceph
+ceph_release: "squid"
+
+# URLs para cephadm
+cephadm_download_url: "https://download.ceph.com/rpm-{{ ceph_release }}/el9/noarch/cephadm"
+
+# configuraciones ceph
+ceph_initial_dashboard_user: "admin"
+ceph_initial_dashboard_password: "ceph2024"
+ceph_cluster_network: "192.168.24.0/26"
+

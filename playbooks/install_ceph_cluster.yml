@@ -1,5 +1,5 @@
 ---
-- name: Install and configure Ceph Cluster
+- name: Instalar y configurar el clúster de Ceph
   hosts: ceph
   become: yes
   roles:
@@ -7,28 +7,34 @@
     - docker
     - ceph
 
-
 - name: Bootstrap Ceph cluster
-  hosts: ceph_main  # o el host adecuado para esta tarea
+  hosts: ceph_main  # Utilizando el host adecuado para esta tarea
   tasks:
-    - name: Run cephadm bootstrap command
+    - name: Ejecutar el comando cephadm bootstrap
       become: yes
-      command: "sudo ./cephadm bootstrap --mon-ip {{ ceph_mon_ip }} --initial-dashboard-user {{ ceph_initial_dashboard_user }} --initial-dashboard-password {{ ceph_initial_dashboard_password }} --dashboard-password-noupdate --cluster-network={{ ceph_cluster_network }} --allow-fqdn-hostname"
+      command: >
+        sudo ./cephadm bootstrap 
+        --mon-ip {{ hostvars[groups['ceph_main'][0]].ansible_host }} 
+        --initial-dashboard-user {{ ceph_initial_dashboard_user }} 
+        --initial-dashboard-password {{ ceph_initial_dashboard_password }} 
+        --dashboard-password-noupdate 
+        --cluster-network={{ ceph_cluster_network }} 
+        --allow-fqdn-hostname
 
-- name: Copy SSH key to ceph nodes
+- name: Copiar clave SSH a nodos ceph
   hosts: ceph_main
   become: yes
   tasks:
-    - name: Read the content of ceph.pub
+    - name: Leer el contenido de ceph.pub
       slurp:
         src: /etc/ceph/ceph.pub
       register: ceph_pub_content
 
-- name: Add SSH key to ceph nodes
+- name: Agregar clave SSH a nodos ceph
   hosts: ceph
   become: yes
   tasks:
-    - name: Ensure .ssh directory exists
+    - name: Asegurarse de que existe el directorio .ssh
       file:
         path: /root/.ssh
         state: directory
@@ -36,7 +42,7 @@
         owner: root
         group: root
 
-    - name: Add ceph.pub key to authorized_keys
+    - name: Agregar la clave ceph.pub a authorized_keys
       lineinfile:
         path: /root/.ssh/authorized_keys
         line: "{{ hostvars[groups['ceph_main'][0]]['ceph_pub_content']['content'] | b64decode }}"
@@ -45,45 +51,39 @@
         group: root
         mode: '0600'
 
-
-- name: Bootstrap Ceph cluster
+- name: Agregar hosts y aplicar configuración Ceph
   hosts: ceph_main
   become: yes
   tasks:
-
-- name: Add hosts
-  hosts: ceph_main
-  tasks:
-    - name: Add hosts
+    - name: Agregar hosts al clúster Ceph
       shell: |
         {% for host in groups['ceph'] %}
         sudo ceph orch host add {{ host }} {{ hostvars[host].ansible_host }}
         {% endfor %}
 
-    
-    - name: Apply MON placement
+    - name: Aplicar colocación de MON
       shell: |
         sudo ceph orch apply mon --placement="{{ groups['mon'] | join(',') }}"
 
-    - name: Apply MGR placement
+    - name: Aplicar colocación de MGR
       shell: |
         sudo ceph orch apply mgr --placement="{{ groups['mgr'] | join(',') }}"
 
-    - name: Label OSD nodes
+    - name: Etiquetar nodos OSD
       shell: |
         sudo ceph orch host label add {{ item }} osd-node
-      with_items: "{{ groups['osd'] }}"
+      loop: "{{ groups['osd'] }}"
 
-    - name: Label MON nodes
+    - name: Etiquetar nodos MON
       shell: |
         sudo ceph orch host label add {{ item }} mon
-      with_items: "{{ groups['mon'] }}"
+      loop: "{{ groups['mon'] }}"
 
-    - name: Label MGR nodes
+    - name: Etiquetar nodos MGR
       shell: |
         sudo ceph orch host label add {{ item }} mgr
-      with_items: "{{ groups['mgr'] }}"
+      loop: "{{ groups['mgr'] }}"
 
-    - name: Apply OSD configuration
+    - name: Aplicar configuración de OSD
       shell: |
         sudo ceph orch apply osd --all-available-devices

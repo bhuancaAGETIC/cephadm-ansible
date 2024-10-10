@@ -1,0 +1,21 @@
+[ceph_main]
+ceph-01
+
+[ceph]
+ceph-01 ansible_host=192.168.24.51
+ceph-02 ansible_host=192.168.24.52
+ceph-03 ansible_host=192.168.24.53
+
+[mon]
+ceph-01
+ceph-02
+ceph-03
+
+[osd]
+ceph-01
+ceph-02
+ceph-03
+
+[mgr]
+ceph-01
+ceph-02
